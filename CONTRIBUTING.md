@@ -1,29 +1,22 @@
 # Contributing
 
+Suggestions, corrections and new one-liners are welcome. Open an issue or a pull request.
+
 ## Content guidelines
 
-- Use full cmdlet and parameter names in published examples.
-- Use `powershell` fenced code blocks.
-- Replace real infrastructure values with obvious placeholders.
-- Document required modules, permissions, and runtime limitations.
-- Add a warning and a safe preview for destructive or high-impact commands.
-- Support Windows PowerShell 5.1 and PowerShell 7 where the underlying module permits it.
+- One task per entry: a `###` heading, a one-line explanation, and a `powershell` code block.
+- Replace real infrastructure values with the placeholders listed in the
+  [README](README.md#conventions) (`example.com`, `dc01.example.com`, `GroupName`, ...).
+  Never include credentials, real domain names, tenant identifiers or other production data.
+- Mark commands that change Active Directory with ⚠️ and explain their impact; add a warning for
+  irreversible or high-impact changes.
+- Document required modules, permissions and platform limitations.
+- Support Windows PowerShell 5.1 and PowerShell 7 where the underlying module allows it.
 
-## Commits and pull requests
+## Commits
 
-Use Conventional Commits, such as:
+Use [Conventional Commits](https://www.conventionalcommits.org/), for example:
 
 - `feat(ad-users): add time-limited membership example`
-- `fix(ad-security): correct audit policy command`
+- `fix(ad-security): correct inactive account filter`
 - `docs: clarify module prerequisites`
-
-Small corrections may be committed directly to `main`. Use a focused branch and pull request for larger additions or structural changes. Pull requests are squash-merged after approval.
-
-## Validation
-
-Before publishing:
-
-1. Run Markdown linting.
-2. Run PSScriptAnalyzer when script files are changed.
-3. Review examples for compatibility with Windows PowerShell 5.1 and PowerShell 7.
-4. Confirm that examples contain no production-specific or sensitive values.
