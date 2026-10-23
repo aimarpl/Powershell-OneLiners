@@ -4,7 +4,7 @@
 
 Everyday user and group management. Commands marked ⚠️ change Active Directory.
 
-- [Count enabled user objects](#count-enabled-user-objects)
+- [Count enabled user accounts](#count-enabled-user-accounts)
 - ⚠️ [Add a user to a group for a limited time](#add-a-user-to-a-group-for-a-limited-time)
 - [Check remaining time of temporary memberships](#check-remaining-time-of-temporary-memberships)
 - ⚠️ [Copy group memberships from one user to another](#copy-group-memberships-from-one-user-to-another)
@@ -15,10 +15,12 @@ Everyday user and group management. Commands marked ⚠️ change Active Directo
 
 ## Users
 
-### Count enabled user objects
+### Count enabled user accounts
+
+`Get-ADUser` returns user accounts only (computer objects also have `objectClass=user`).
 
 ```powershell
-get-adobject -SearchBase "DC=example,DC=com" -Filter {(objectClass -eq "user") -and (enabled -eq $true)} -SearchScope Subtree | Measure-Object
+Get-ADUser -Filter 'Enabled -eq $true' -SearchBase "DC=example,DC=com" -SearchScope Subtree | Measure-Object
 ```
 
 ## Time-based group membership

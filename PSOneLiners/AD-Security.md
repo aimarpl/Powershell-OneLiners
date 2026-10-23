@@ -16,8 +16,11 @@ accounts. All commands on this page are read-only.
 
 ### Computer accounts inactive for more than 180 days
 
+`-TimeSpan` takes a time span (`days.hours:minutes:seconds`); a plain number would be read as
+ticks, not days.
+
 ```powershell
-Search-ADaccount -ComputersOnly -AccountInactive -Timespan 180
+Search-ADaccount -ComputersOnly -AccountInactive -Timespan 180.00:00:00
 ```
 
 ### User accounts allowed to have an empty password
