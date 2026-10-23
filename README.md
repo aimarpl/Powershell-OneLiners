@@ -1,27 +1,30 @@
-# Active Directory PowerShell One-Liners
+# Windows and Active Directory PowerShell One-Liners
 
 [![PowerShell 5.1 | 7](https://img.shields.io/badge/PowerShell-5.1%20%7C%207-5391FE?logo=powershell&logoColor=white)](https://learn.microsoft.com/powershell/)
 [![Module: ActiveDirectory](https://img.shields.io/badge/module-ActiveDirectory-0078D4)](https://learn.microsoft.com/powershell/module/activedirectory/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-Copy-paste ready PowerShell one-liners for everyday Active Directory administration:
-health and replication checks, FSMO roles, security audits, and user and group management.
+Copy-paste ready PowerShell one-liners for everyday Windows and Active Directory administration:
+event log queries, health and replication checks, FSMO roles, security audits, and user and group
+management.
 
 ## Contents
 
 | Topic | What you will find |
 | --- | --- |
-| [Health and replication](PSOneLiners/AD-Health.md) | Domain controllers, replication partners and replication failures |
+| [Windows event logs](PSOneLiners/Windows-Events.md) | Logons, restarts, installed software and updates, security-relevant events, log maintenance |
+| [Active Directory events](PSOneLiners/AD-Events.md) | Lockout sources, failed authentication, group and account changes, RC4 Kerberos tickets |
+| [Health and replication](PSOneLiners/AD-Health.md) | Domain controllers, replication, dcdiag, time sync, SYSVOL, functional levels, schema |
 | [Repadmin](PSOneLiners/repadmin.md) | Step-by-step replication troubleshooting with `repadmin.exe` |
 | [FSMO roles](PSOneLiners/AD-FSMO.md) | Find and transfer operations master roles |
-| [Security](PSOneLiners/AD-Security.md) | Inactive computers, risky account flags, privileged groups, SPNs |
-| [Users and groups](PSOneLiners/AD-Users.md) | Counts, group membership, temporary membership, passwords, lockouts, mail attributes |
-| [Optional features](PSOneLiners/AD-Features.md) | Privileged Access Management feature |
+| [Security](PSOneLiners/AD-Security.md) | Risky account flags, privileged groups, delegation, krbtgt, password policies, trusts, LAPS, recent changes |
+| [Users and groups](PSOneLiners/AD-Users.md) | Inactive and new accounts, real last logon, group membership, temporary membership, passwords, lockouts, mail attributes |
+| [Optional features](PSOneLiners/AD-Features.md) | Privileged Access Management, Recycle Bin, restoring deleted objects |
 
 ## Prerequisites
 
 - Windows PowerShell 5.1 or PowerShell 7 on Windows.
-- The **ActiveDirectory** module from RSAT:
+- The **ActiveDirectory** module from RSAT for the Active Directory pages:
 
   ```powershell
   # Windows 10 / 11
@@ -33,7 +36,13 @@ health and replication checks, FSMO roles, security audits, and user and group m
 
 - Read access to the directory is enough for queries. Commands that change Active Directory
   need the matching administrative rights.
-- `repadmin.exe` is included with the AD DS role and the RSAT AD DS tools.
+- `repadmin.exe`, `dcdiag.exe` and `dfsrmig.exe` are included with the AD DS role and the RSAT AD DS tools.
+- `Get-GPO` needs the **GroupPolicy** module (RSAT Group Policy Management Tools,
+  `Rsat.GroupPolicy.Management.Tools~~~~0.0.1.0` on Windows 10 / 11).
+- Event log queries: reading the Security log requires an elevated session or membership in
+  *Event Log Readers*; most Security events are only written when the matching audit policy is
+  enabled; remote queries need the *Remote Event Log Management* firewall rule. The event log pages
+  need no extra module.
 
 ## Conventions
 
@@ -43,11 +52,12 @@ health and replication checks, FSMO roles, security audits, and user and group m
   | --- | --- |
   | `example.com`, `DC=example,DC=com` | Your domain (DNS name / distinguished name) |
   | `dc01.example.com` | A domain controller |
+  | `server01.example.com` | Any Windows server or client |
   | `GroupName`, `AccountName`, `UserName` | A group, user or computer account |
   | `SourceUser`, `TargetUser` | Accounts used when copying group memberships |
   | `New-Host`, `RoleName` | Target domain controller and FSMO role name |
 
-- ⚠️ marks commands that **change** Active Directory. Everything else is read-only.
+- ⚠️ marks commands that **change** Active Directory or the system. Everything else is read-only.
   Try changes in a lab or with `-WhatIf` (where supported) before running them in production.
 
 ## Contributing
