@@ -33,11 +33,14 @@ Get-ADUser -Filter 'Enabled -eq $true' -SearchBase "DC=example,DC=com" -SearchSc
 
 ### Users inactive for more than 90 days
 
-Enabled users whose last logon is older than 90 days. `LastLogonDate` comes from `lastLogonTimestamp`, which
-replicates with a delay of up to 14 days, so it is accurate enough for clean-up but not for auditing.
+Enabled users whose last logon is older than 90 days. `Search-ADAccount` also counts accounts that never
+logged on as inactive, even if they were created today; they are filtered out here, see
+[Enabled users that never logged on](#enabled-users-that-never-logged-on). `LastLogonDate` comes from
+`lastLogonTimestamp`, which replicates with a delay of up to 14 days, so it is accurate enough for clean-up
+but not for auditing.
 
 ```powershell
-Search-ADAccount -UsersOnly -AccountInactive -TimeSpan 90.00:00:00 | Where-Object Enabled | Select-Object Name, SamAccountName, LastLogonDate
+Search-ADAccount -UsersOnly -AccountInactive -TimeSpan 90.00:00:00 | Where-Object { $_.Enabled -and $_.LastLogonDate } | Select-Object Name, SamAccountName, LastLogonDate
 ```
 
 ### Enabled users that never logged on
@@ -73,10 +76,12 @@ Search-ADAccount -AccountExpiring -UsersOnly -TimeSpan 30.00:00:00 | Select-Obje
 ### Real last logon time of a user
 
 `lastLogon` is updated only on the domain controller that authenticated the user and is not replicated, so
-this asks every domain controller. The first line is the most recent logon.
+this asks every domain controller. The first line is the most recent logon; an empty value means no logon
+on that domain controller. Some network logons (for example NTLM) update only the replicated
+`LastLogonDate`, so check that too.
 
 ```powershell
-Get-ADDomainController -Filter * | ForEach-Object { $dc = $_.HostName; Get-ADUser -Identity UserName -Server $dc -Properties lastLogon | Select-Object @{n='DC';e={$dc}}, @{n='LastLogon';e={[datetime]::FromFileTime($_.lastLogon)}} } | Sort-Object LastLogon -Descending
+Get-ADDomainController -Filter * | ForEach-Object { $dc = $_.HostName; Get-ADUser -Identity UserName -Server $dc -Properties lastLogon | Select-Object @{n='DC';e={$dc}}, @{n='LastLogon';e={if ($_.lastLogon) {[datetime]::FromFileTime($_.lastLogon)}}} } | Sort-Object LastLogon -Descending
 ```
 
 ## Time-based group membership
