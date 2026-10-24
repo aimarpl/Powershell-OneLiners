@@ -56,11 +56,12 @@ Get-ADDomainController -Filter * | ForEach-Object { Get-WinEvent -ComputerName $
 ### Group membership changes in the last 7 days
 
 Members added to or removed from global (4728/4729), domain local (4732/4733) and universal (4756/4757)
-security groups, from all domain controllers. Append `| Where-Object Group -match 'Admins|Operators'`
+security groups, from all domain controllers. Members without a name (for example well-known groups) are
+shown as a SID. Append `| Where-Object Group -match 'Admins|Operators'`
 to show privileged groups only.
 
 ```powershell
-Get-ADDomainController -Filter * | ForEach-Object { Get-WinEvent -ComputerName $_.HostName -FilterHashtable @{LogName='Security'; Id=4728,4729,4732,4733,4756,4757; StartTime=(Get-Date).AddDays(-7)} -ErrorAction SilentlyContinue } | Sort-Object TimeCreated | Select-Object TimeCreated, @{n='Action';e={if ($_.Id % 2) {'Removed'} else {'Added'}}}, @{n='Group';e={$_.Properties[2].Value}}, @{n='Member';e={$_.Properties[0].Value}}, @{n='ChangedBy';e={$_.Properties[6].Value}}, MachineName
+Get-ADDomainController -Filter * | ForEach-Object { Get-WinEvent -ComputerName $_.HostName -FilterHashtable @{LogName='Security'; Id=4728,4729,4732,4733,4756,4757; StartTime=(Get-Date).AddDays(-7)} -ErrorAction SilentlyContinue } | Sort-Object TimeCreated | Select-Object TimeCreated, @{n='Action';e={if ($_.Id % 2) {'Removed'} else {'Added'}}}, @{n='Group';e={$_.Properties[2].Value}}, @{n='Member';e={if ($_.Properties[0].Value -and $_.Properties[0].Value -ne '-') {$_.Properties[0].Value} else {"$($_.Properties[1].Value)"}}}, @{n='ChangedBy';e={$_.Properties[6].Value}}, MachineName
 ```
 
 ### User and computer accounts created or deleted in the last 7 days
