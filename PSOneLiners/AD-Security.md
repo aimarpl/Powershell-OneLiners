@@ -37,7 +37,7 @@ domain-wide security settings. All commands on this page are read-only.
 ### Computer accounts inactive for more than 180 days
 
 `-TimeSpan` takes a time span (`days.hours:minutes:seconds`); a plain number would be read as
-ticks, not days.
+ticks, not days. Accounts that never logged on are listed too.
 
 ```powershell
 Search-ADaccount -ComputersOnly -AccountInactive -Timespan 180.00:00:00
@@ -153,7 +153,8 @@ Get-ADComputer -Filter 'Enabled -eq $true' -Properties OperatingSystem | Group-O
 ### User accounts with SPNs (Kerberoasting exposure)
 
 User accounts with a `servicePrincipalName` can be targeted by Kerberoasting; make sure they
-use long, random passwords or group Managed Service Accounts.
+use long, random passwords or group Managed Service Accounts. `krbtgt` (`kadmin/changepw`) is always
+listed and can be ignored.
 
 ```powershell
 dsquery * "dc=example,dc=com" -filter "(&(objectcategory=user)(servicePrincipalName=*))" -attr distinguishedName servicePrincipalName
