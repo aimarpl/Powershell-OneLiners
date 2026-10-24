@@ -73,10 +73,11 @@ Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625; StartTime=(Get-Date
 ### Administrator logons in the last 24 hours
 
 Event 4672 (special privileges assigned to a new logon) is written for every logon with administrative
-privileges. SYSTEM, LOCAL SERVICE, NETWORK SERVICE and computer accounts are filtered out.
+privileges. SYSTEM, LOCAL SERVICE, NETWORK SERVICE, Window Manager / Font Driver Host and computer
+accounts are filtered out.
 
 ```powershell
-Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4672; StartTime=(Get-Date).AddDays(-1)} | Where-Object { "$($_.Properties[0].Value)" -notin 'S-1-5-18', 'S-1-5-19', 'S-1-5-20' -and $_.Properties[1].Value -notlike '*$' } | Group-Object {'{0}\{1}' -f $_.Properties[2].Value, $_.Properties[1].Value} | Sort-Object Count -Descending | Select-Object Count, Name
+Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4672; StartTime=(Get-Date).AddDays(-1)} | Where-Object { "$($_.Properties[0].Value)" -notmatch '^S-1-5-(18|19|20)$|^S-1-5-(90|96)-' -and $_.Properties[1].Value -notlike '*$' } | Group-Object {'{0}\{1}' -f $_.Properties[2].Value, $_.Properties[1].Value} | Sort-Object Count -Descending | Select-Object Count, Name
 ```
 
 ### Logons with explicit credentials in the last 24 hours
@@ -139,10 +140,11 @@ Get-WinEvent -FilterHashtable @{LogName='System','Application'; Level=1,2; Start
 ### Software installed in the last 7 days
 
 Reads the Uninstall registry keys (64-bit, 32-bit and the current user), so non-MSI installers are
-included. Entries without a valid `InstallDate` are skipped.
+included. Keys that do not exist on the computer are ignored, and entries without a valid `InstallDate`
+are skipped.
 
 ```powershell
-Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*, HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -and $_.InstallDate -match '^\d{8}$' -and $_.InstallDate -ge (Get-Date).AddDays(-7).ToString('yyyyMMdd') } | Sort-Object InstallDate -Descending | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate
+Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*, HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -and $_.InstallDate -match '^\d{8}$' -and $_.InstallDate -ge (Get-Date).AddDays(-7).ToString('yyyyMMdd') } | Sort-Object InstallDate -Descending | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate
 ```
 
 ### MSI installs and removals in the last 7 days
@@ -206,6 +208,8 @@ Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4732,4733; StartTime=(Get
 
 ### Local user accounts created or deleted in the last 7 days
 
+On domain controllers this lists domain accounts, see [Active Directory events](AD-Events.md).
+
 ```powershell
 Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4720,4726; StartTime=(Get-Date).AddDays(-7)} | Select-Object TimeCreated, @{n='Action';e={@{4720='Created';4726='Deleted'}[$_.Id]}}, @{n='Account';e={$_.Properties[0].Value}}, @{n='ChangedBy';e={'{0}\{1}' -f $_.Properties[5].Value, $_.Properties[4].Value}}
 ```
@@ -248,7 +252,8 @@ Get-WinEvent -ListLog Application, Security, System | Select-Object LogName, Log
 
 ### Oldest event in each log
 
-Shows how far back each log really goes with the current size and retention settings.
+Shows how far back each log really goes with the current size and retention settings. This is the
+oldest record; if the system clock was changed, it can show a later time than newer records.
 
 ```powershell
 'Application', 'Security', 'System' | ForEach-Object { Get-WinEvent -LogName $_ -Oldest -MaxEvents 1 } | Select-Object LogName, TimeCreated
