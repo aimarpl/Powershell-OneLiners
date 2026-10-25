@@ -65,9 +65,10 @@ Get-WinEvent -LogName Security -FilterXPath "*[System[EventID=4624 and TimeCreat
 
 Event 4625 grouped by account and source IP address. Many failures for many accounts from one source
 suggest password spraying; many failures for one account suggest a stale saved password or brute force.
+When the event has no domain name, the account is shown without a leading backslash.
 
 ```powershell
-Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625; StartTime=(Get-Date).AddDays(-1)} | Group-Object {'{0}\{1}' -f $_.Properties[6].Value, $_.Properties[5].Value}, {$_.Properties[19].Value} | Sort-Object Count -Descending | Select-Object Count, Name
+Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625; StartTime=(Get-Date).AddDays(-1)} | Group-Object {if ($_.Properties[6].Value) {'{0}\{1}' -f $_.Properties[6].Value, $_.Properties[5].Value} else {$_.Properties[5].Value}}, {$_.Properties[19].Value} | Sort-Object Count -Descending | Select-Object Count, Name
 ```
 
 ### Administrator logons in the last 24 hours
@@ -84,10 +85,10 @@ Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4672; StartTime=(Get-Date
 
 Event 4648 is written when a process logs on with different credentials, for example `runas`, mapped
 drives with another account or remote administration tools, so it is useful for spotting lateral
-movement.
+movement. The account is shown without a leading backslash when the event has no target domain.
 
 ```powershell
-Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4648; StartTime=(Get-Date).AddDays(-1)} | Where-Object { $_.Properties[1].Value -notlike '*$' } | Select-Object TimeCreated, @{n='User';e={$_.Properties[1].Value}}, @{n='UsedAccount';e={'{0}\{1}' -f $_.Properties[6].Value, $_.Properties[5].Value}}, @{n='TargetServer';e={$_.Properties[8].Value}}, @{n='Process';e={$_.Properties[11].Value}}
+Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4648; StartTime=(Get-Date).AddDays(-1)} | Where-Object { $_.Properties[1].Value -notlike '*$' } | Select-Object TimeCreated, @{n='User';e={$_.Properties[1].Value}}, @{n='UsedAccount';e={if ($_.Properties[6].Value) {'{0}\{1}' -f $_.Properties[6].Value, $_.Properties[5].Value} else {$_.Properties[5].Value}}}, @{n='TargetServer';e={$_.Properties[8].Value}}, @{n='Process';e={$_.Properties[11].Value}}
 ```
 
 ### Remote Desktop sessions in the last 7 days
