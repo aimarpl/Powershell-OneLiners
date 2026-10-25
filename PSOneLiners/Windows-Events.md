@@ -304,4 +304,5 @@ wevtutil sl Security /ms:1073741824
 
 ---
 
-See also: [Active Directory events](AD-Events.md) for domain controller Security log queries.
+See also: [Active Directory events](AD-Events.md) for domain controller Security log queries and
+[Windows Firewall](Windows-Firewall.md) for firewall rules and logging.
