@@ -32,22 +32,33 @@ jobs:
       - name: Check for smart quotes and dashes in examples
         run: python3 tools/check-code-characters.py .
 
-  powershell-analysis:
-    name: PSScriptAnalyzer (${{ matrix.shell }})
+  # The examples must be valid under both runtimes, so the analyzer runs twice.
+  # These are separate jobs rather than a matrix because the `shell` key does
+  # not accept expressions.
+  analyze-windows-powershell:
+    name: PSScriptAnalyzer (Windows PowerShell 5.1)
     runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # powershell = Windows PowerShell 5.1, pwsh = PowerShell 7.
-        # The examples must be valid on both.
-        shell: [powershell, pwsh]
     steps:
       - uses: actions/checkout@v5
       - name: Install PSScriptAnalyzer
-        shell: ${{ matrix.shell }}
+        shell: powershell
         run: |
           Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
           Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
       - name: Analyze examples embedded in Markdown
-        shell: ${{ matrix.shell }}
+        shell: powershell
+        run: ./tools/Invoke-MarkdownScriptAnalyzer.ps1
+
+  analyze-powershell-7:
+    name: PSScriptAnalyzer (PowerShell 7)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+      - name: Analyze examples embedded in Markdown
+        shell: pwsh
         run: ./tools/Invoke-MarkdownScriptAnalyzer.ps1
