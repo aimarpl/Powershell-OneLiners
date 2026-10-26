@@ -10,13 +10,13 @@ to another domain controller.
 ### Forest-wide roles: Domain Naming Master and Schema Master
 
 ```powershell
-Get-ADForest example.com | fl DomainNamingMaster, SchemaMaster
+Get-ADForest example.com | Format-List DomainNamingMaster, SchemaMaster
 ```
 
 ### Domain-wide roles: Infrastructure Master, PDC Emulator and RID Master
 
 ```powershell
-Get-ADDomain example.com | fl InfrastructureMaster, PDCEmulator, RIDMaster
+Get-ADDomain example.com | Format-List InfrastructureMaster, PDCEmulator, RIDMaster
 ```
 
 ## Transfer a role

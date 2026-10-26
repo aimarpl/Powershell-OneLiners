@@ -14,6 +14,35 @@ Suggestions, corrections and new one-liners are welcome. Open an issue or a pull
 - Support Windows PowerShell 5.1 and PowerShell 7 where the underlying module allows it.
 - Event log queries: use `-FilterHashtable` or `-FilterXPath` so the filtering happens in the event log
   service, and verify event field positions (`$_.Properties[n]`) against the event template.
+- Use full cmdlet and parameter names. `Format-List`, not `fl`; `Where-Object`, not `Where`.
+- Type the code by hand or paste from a terminal, never from a document or chat
+  client. Those replace `-` with `–` and `'` with `’`, which looks right in a
+  browser and fails the moment someone pastes it into a console.
+
+## Validation
+
+Run before opening a pull request:
+
+```bash
+# Smart quotes and dashes that break on paste
+python3 tools/check-code-characters.py .
+
+# Markdown formatting
+npx --yes markdownlint-cli2 "**/*.md"
+```
+
+```powershell
+# PSScriptAnalyzer across every PowerShell block in the Markdown
+./tools/Invoke-MarkdownScriptAnalyzer.ps1
+```
+
+The examples live inside fenced code blocks rather than `.ps1` files, so
+`Invoke-MarkdownScriptAnalyzer.ps1` extracts each block and analyzes it,
+reporting findings against the Markdown file and line. Pointing PSScriptAnalyzer
+at `*.ps1` here finds nothing and passes, which is why that is not what CI does.
+
+All three checks run in CI on every push and pull request, with the analyzer
+executed under both Windows PowerShell 5.1 and PowerShell 7.
 
 ## Commits
 

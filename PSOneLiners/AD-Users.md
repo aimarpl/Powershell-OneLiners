@@ -120,7 +120,7 @@ Get-ADUser -Identity SourceUser -Properties memberof | Select-Object -ExpandProp
 ### Enabled user accounts in a group
 
 ```powershell
-Get-AdGroupMember -identity 'GroupName' | get-aduser | Where {$_.Enabled -eq $true}
+Get-AdGroupMember -Identity 'GroupName' | Get-ADUser | Where-Object {$_.Enabled -eq $true}
 ```
 
 ## Passwords and lockouts
@@ -128,7 +128,7 @@ Get-AdGroupMember -identity 'GroupName' | get-aduser | Where {$_.Enabled -eq $tr
 ### Password expiration date of a user
 
 ```powershell
-Get-ADUser UserName –Properties DisplayName, msDS-UserPasswordExpiryTimeComputed | Select-Object -Property Displayname,@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
+Get-ADUser UserName -Properties DisplayName, msDS-UserPasswordExpiryTimeComputed | Select-Object -Property Displayname,@{Name="ExpiryDate";Expression={[datetime]::FromFileTime($_."msDS-UserPasswordExpiryTimeComputed")}}
 ```
 
 ### Locked-out accounts

@@ -1,0 +1,53 @@
+name: Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  markdown:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Lint Markdown
+        run: npx --yes markdownlint-cli2 "**/*.md"
+
+  code-characters:
+    name: Copy-paste safety
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check for smart quotes and dashes in examples
+        run: python3 tools/check-code-characters.py .
+
+  powershell-analysis:
+    name: PSScriptAnalyzer (${{ matrix.shell }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # powershell = Windows PowerShell 5.1, pwsh = PowerShell 7.
+        # The examples must be valid on both.
+        shell: [powershell, pwsh]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install PSScriptAnalyzer
+        shell: ${{ matrix.shell }}
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+      - name: Analyze examples embedded in Markdown
+        shell: ${{ matrix.shell }}
+        run: ./tools/Invoke-MarkdownScriptAnalyzer.ps1

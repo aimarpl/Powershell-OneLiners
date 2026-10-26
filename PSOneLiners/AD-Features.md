@@ -31,7 +31,7 @@ Enables time-based (temporary) group membership, used by `Add-ADGroupMember -Mem
 on the [Users and groups](AD-Users.md#time-based-group-membership) page.
 
 ```powershell
-Enable-ADOptionalFeature ‘Privileged Access Management Feature’ -Scope ForestOrConfigurationSet -Target example.com
+Enable-ADOptionalFeature 'Privileged Access Management Feature' -Scope ForestOrConfigurationSet -Target example.com
 ```
 
 > [!CAUTION]

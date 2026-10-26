@@ -54,7 +54,7 @@ get-adobject -ldapfilter "(&(objectCategory=person)(objectClass=user)(userAccoun
 ### Accounts with PasswordNeverExpires enabled
 
 ```powershell
-Search-ADAccount -PasswordNeverExpires | ft samaccountname,name,enabled
+Search-ADAccount -PasswordNeverExpires | Format-Table samaccountname,name,enabled
 ```
 
 ### Users that do not require Kerberos pre-authentication (AS-REP roasting)
@@ -99,7 +99,7 @@ Groups that are, or were, protected by AdminSDHolder, which usually means admini
 rights.
 
 ```powershell
-Get-ADGroup –LDAPFilter “(admincount=1)”
+Get-ADGroup -LDAPFilter "(admincount=1)"
 ```
 
 ### Members of privileged groups

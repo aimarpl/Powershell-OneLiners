@@ -1,0 +1,9 @@
+config:
+  # Legacy topic files are incrementally normalized as they are edited.
+  line-length: false
+  no-trailing-spaces: false
+  no-multiple-blanks: false
+  blanks-around-headings: false
+  blanks-around-fences: false
+  fenced-code-language: false
+  first-line-heading: false

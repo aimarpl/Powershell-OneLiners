@@ -29,7 +29,7 @@ and the built-in tools `dcdiag`, `w32tm`, `nltest` and `dfsrmig`. All commands o
 Lists every domain controller and whether it is a Global Catalog server.
 
 ```powershell
-Get-ADDomainController –Filter * | Select Hostname, IsGlobalCatalog
+Get-ADDomainController -Filter * | Select-Object Hostname, IsGlobalCatalog
 ```
 
 ## Replication partners
